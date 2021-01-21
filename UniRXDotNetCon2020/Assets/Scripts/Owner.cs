@@ -2,13 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Owner : MonoBehaviour
+public enum Owner
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-
+    Player,
+    Enemy
 }

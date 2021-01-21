@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using UniRx;
+
 public class PlayerController : BaseShip
 {
 
-    [SerializeField]
-    private ParticleSystem explode;
     public float BulletPerSecond;
     public float Speed;
 
@@ -18,7 +15,7 @@ public class PlayerController : BaseShip
             .Where(t => Input.GetKey(KeyCode.Space))
             .Timestamp()
             .Where(t => t.Timestamp > lastFire.AddSeconds(BulletPerSecond))
-            .Subscribe(t=>
+            .Subscribe(t =>
             {
                 Fire();
                 lastFire = t.Timestamp;
@@ -35,17 +32,32 @@ public class PlayerController : BaseShip
             .AddTo(this);
     }
 
-    private void Dead()
-    {
-        explode.Play();
-    }
+
 
     void Update()
     {
         float horizontal = Input.GetAxis("Horizontal");
         transform.Translate(horizontal * Time.deltaTime * Speed, 0f, 0f);
         shipModel.rotation = Quaternion.Euler(0, shipModel.rotation.eulerAngles.y, Mathf.Floor(horizontal) * 45f);
+        //if (Input.GetKey(KeyCode.Space))
+        //    FireKeyPress();
     }
+
+    #region Old Fashion Way
+    float fireCoolDown = 0;
+    private void FireKeyPress()
+    {
+        if(fireCoolDown <=0)
+        {
+            fireCoolDown = BulletPerSecond;
+            Fire();
+        }
+        else
+        {
+            fireCoolDown -= Time.deltaTime;
+        }
+    }
+    #endregion
 
     protected override void Fire()
     {

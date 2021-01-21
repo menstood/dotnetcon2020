@@ -10,6 +10,8 @@ public class UIManager : MonoBehaviour
     private Text hpLabel;
     [SerializeField]
     private Text scoreLabel;
+    [SerializeField]
+    private GameObject pausePanel;
 
     public void Init(GameData gamedata)
     {
@@ -27,5 +29,6 @@ public class UIManager : MonoBehaviour
             scoreLabel.text = string.Format("Score : {0}", score);
         });
 
+        gamedata.isPause.Subscribe(isPause => pausePanel.SetActive(isPause));
     }
 }

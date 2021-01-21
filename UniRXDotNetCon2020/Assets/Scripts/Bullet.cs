@@ -1,23 +1,56 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UniRx;
 
 public class Bullet : MonoBehaviour
 {
+    [SerializeField]
+    private ParticleSystem bulletTrail;
+    [SerializeField]
+    private ParticleSystem explodeEfx;
+    [SerializeField]
+    private Collider collider;
+
+    private IDisposable updateDP;
+    private IDisposable autoKillDP;
+    private IDisposable deleyExplodeDp;
+    public Owner Owner;
     public float Speed;
     public int Damage;
+    public float LifeTime = 3;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        Observable.EveryUpdate().Subscribe(t =>
-        {
-            transform.Translate(transform.forward * Speed * Time.deltaTime);
-        }).AddTo(this);
+        updateDP = Observable.EveryUpdate()
+        .Subscribe(t => transform.Translate(transform.forward * Speed * Time.deltaTime))
+        .AddTo(this);
+
+        autoKillDP = Observable.Timer(TimeSpan.FromSeconds(LifeTime))
+        .Subscribe(t => Kill())
+        .AddTo(this);
+    }
+    public void Explode()
+    {
+        bulletTrail.Stop();
+        explodeEfx.Play();
+        collider.enabled = false;
+        float delayDestroy = explodeEfx.main.startLifetime.constant * 2;
+        deleyExplodeDp = Observable.Timer(TimeSpan.FromSeconds(delayDestroy))
+            .Subscribe(t => Kill())
+            .AddTo(this);
     }
 
-    void OnTriggerEnter(Collider other)
+    private void Kill()
     {
-        Destroy(this.gameObject);
+        //Dispose();
+        Destroy(gameObject);
+    }
+    private void Dispose()
+    {
+        updateDP.Dispose();
+        autoKillDP.Dispose();
+        deleyExplodeDp?.Dispose();
     }
 }
