@@ -15,14 +15,7 @@ public class GameManager : MonoBehaviour
         UIManager.Init(GameData);
         PlayerController.Init(GameData);
         EnemySpawner.Init(GameData);
-        Observable.EveryUpdate()
-            .Where(t => GameData.isPause.Value)
-            .Where(t => Input.anyKey)
-            .Subscribe(t =>
-            {
-                GameData.TogglePause();
-            })
-            .AddTo(this);
+     
     }
 
 

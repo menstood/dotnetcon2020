@@ -1,25 +1,34 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UniRx;
+﻿using UniRx;
 
-public class GameData 
+public class GameData
 {
     public int PlayerMaxHP = 100;
+    public ReactiveProperty<Unit> Gamestart;
     public ReactiveProperty<int> PlayerHP;
-    public ReactiveProperty<int> Score; // Subscribe ครั้งแรกจะได้ Value : Notify เมื่อมีค่าใหม่ != ค่าปัจจุบัน
-    public ReactiveProperty<bool> isPause;
+    public ReactiveProperty<int> Score;
+    public Subject<Unit> OnGameEnd;
+    public bool isGameEnd;
 
     public GameData()
     {
         PlayerHP = new ReactiveProperty<int>(PlayerMaxHP);
         Score = new ReactiveProperty<int>(0);
-        isPause = new ReactiveProperty<bool>(true);
+        OnGameEnd = new Subject<Unit>();
+        PlayerHP.Where(hp => hp <= 0)
+            .Subscribe(x =>
+            {
+                OnGameEnd.OnNext(Unit.Default);
+                isGameEnd = true;
+            });
     }
 
     public void HpChange(int value)
     {
         PlayerHP.Value += value;
+
+        #region Old Fashion Way
+        //UIManager.UpdateHPLabel(PlayerHP,PlayerMaxHP);
+        #endregion
     }
 
     public void AddScore(int value)
@@ -27,14 +36,10 @@ public class GameData
         Score.Value += value;
     }
 
-    public void TogglePause()
-    {
-        isPause.Value = !isPause.Value;
-    }
     public void Dispose()
     {
         PlayerHP.Dispose();
         Score.Dispose();
-        isPause.Dispose();
+        OnGameEnd.Dispose();
     }
 }

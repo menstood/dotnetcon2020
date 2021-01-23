@@ -11,14 +11,16 @@ public class EnemySpawner : MonoBehaviour
     private List<Transform> spawnLocators;
     [SerializeField]
     private float spawnTime;
-
+    
     private GameData gameData;
 
+    public bool isSpawn;
     public void Init(GameData gameData)
     {
         this.gameData = gameData;
         Observable.Interval(TimeSpan.FromSeconds(spawnTime))
-            .Where(isPause => !gameData.isPause.Value)
+            .Where(isPause => !gameData.isGameEnd)
+            .Where(x => isSpawn)
             .Subscribe(t => SpawnEnemy());
     }
 

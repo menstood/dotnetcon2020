@@ -25,6 +25,7 @@ public class EnemyController : BaseShip
 
     protected override void Start()
     {
+        base.Start();
         startXPos = transform.position.x;
         DateTimeOffset lastFire;
         Observable.EveryUpdate()

@@ -10,8 +10,12 @@ public class PlayerController : BaseShip
 
     protected override void Start()
     {
+        base.Start();
+
+
         DateTimeOffset lastFire;
         Observable.EveryUpdate()
+            .Do(t => Move())
             .Where(t => Input.GetKey(KeyCode.Space))
             .Timestamp()
             .Where(t => t.Timestamp > lastFire.AddSeconds(BulletPerSecond))
@@ -21,6 +25,8 @@ public class PlayerController : BaseShip
                 lastFire = t.Timestamp;
             })
             .AddTo(this);
+
+
     }
 
     public override void Init(GameData gameData)
@@ -33,30 +39,39 @@ public class PlayerController : BaseShip
     }
 
 
-
-    void Update()
+    private void Move()
     {
         float horizontal = Input.GetAxis("Horizontal");
         transform.Translate(horizontal * Time.deltaTime * Speed, 0f, 0f);
         shipModel.rotation = Quaternion.Euler(0, shipModel.rotation.eulerAngles.y, Mathf.Floor(horizontal) * 45f);
-        //if (Input.GetKey(KeyCode.Space))
-        //    FireKeyPress();
     }
 
+
     #region Old Fashion Way
-    float fireCoolDown = 0;
-    private void FireKeyPress()
-    {
-        if(fireCoolDown <=0)
-        {
-            fireCoolDown = BulletPerSecond;
-            Fire();
-        }
-        else
-        {
-            fireCoolDown -= Time.deltaTime;
-        }
-    }
+
+    //float fireCoolDown = 0;
+
+    //void Update()
+    //{
+    //    Move();
+    //    if (Input.GetKey(KeyCode.Space))
+    //    {
+    //        if (fireCoolDown <= 0)
+    //        {
+    //            Fire();
+    //            fireCoolDown = BulletPerSecond;
+    //        }
+    //    }
+
+    //    if (fireCoolDown > 0)
+    //    {
+    //        fireCoolDown -= Time.deltaTime;
+    //    }
+    //}
+
+
+
+
     #endregion
 
     protected override void Fire()
